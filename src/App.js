@@ -29,14 +29,17 @@ export default function App() {
     setOpenAddFriend(!openAddFriend);
   }
 
+  function handleAddFriend(friend) {
+    console.log(friends.length);
+    setFriends((friends) => [...friends, friend]);
+    console.log(friends.length);
+  }
+
   return (
     <div className="app">
       <div className="sidebar">
-        <FriendsList data={initialFriends} />
-
-        {openAddFriend && (
-          <FormAddFriend friends={friends} onsetFriends={setFriends} />
-        )}
+        <FriendsList friends={friends} />
+        {openAddFriend && <FormAddFriend onAddFriend={handleAddFriend} />}
         <Button onClick={onToggle}>
           {openAddFriend ? "Close" : "Add Friend"}
         </Button>
@@ -48,8 +51,8 @@ export default function App() {
   );
 }
 
-function FriendsList() {
-  const friends = initialFriends;
+function FriendsList({ friends }) {
+  // const friends = initialFriends;
   return (
     <ul>
       {friends.map((friend) => (
@@ -82,21 +85,30 @@ function Friend({ friend }) {
   );
 }
 
-function FormAddFriend({ friends, onsetFriends }) {
+function FormAddFriend({ onAddFriend }) {
+  const [name, setName] = useState("");
+  const [url, setUrl] = useState("");
+
+  function handleNewFriend(e) {
+    e.preventDefault();
+    if (!name) return;
+
+    const newFriend = { name, url, balance: 0, id: Date.now() };
+    onAddFriend(newFriend);
+  }
+
   return (
-    <form className="form-add-friend">
+    <form className="form-add-friend" onSubmit={handleNewFriend}>
       <label>👫 Friend name </label>
       <input
         type="text"
-        value={friends.name}
-        onChange={(e) => onsetFriends(e)}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
       />
-      <label>🌄 image URL </label>
-      <input
-        type="text"
-        value={friends.image}
-        onChange={(e) => onsetFriends(e)}
-      />
+
+      <label>🌄 Image URL </label>
+      <input type="text" value={url} onChange={(e) => setUrl(e.target.value)} />
+
       <Button>Add</Button>
     </form>
   );
