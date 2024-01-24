@@ -40,6 +40,16 @@ export default function App() {
     setOpenAddFriend(false);
   }
 
+  function handleUpdateBalance(balanceDifference) {
+    setFriends((friends) =>
+      friends.map((friend) =>
+        friend.id === selectedFriend.id
+          ? { ...friend, balance: friend.balance + balanceDifference }
+          : friend
+      )
+    );
+  }
+
   return (
     <div className="app">
       <div className="sidebar">
@@ -55,7 +65,12 @@ export default function App() {
         </Button>
       </div>
       <div>
-        {selectedFriend && <FormSplitBill selectedFriend={selectedFriend} />}
+        {selectedFriend && (
+          <FormSplitBill
+            selectedFriend={selectedFriend}
+            onBalanceDifference={handleUpdateBalance}
+          />
+        )}
       </div>
     </div>
   );
@@ -149,30 +164,41 @@ function Button({ onClick, children }) {
   );
 }
 
-function FormSplitBill({ selectedFriend }) {
-  const [billAmount, setBillAmount] = useState("");
-  const [myExpenses, setMyExpenses] = useState("");
+function FormSplitBill({ selectedFriend, onBalanceDifference }) {
+  const [bill, setBill] = useState("");
+  const [userExpenses, setUserExpenses] = useState("");
   const [selectedPayer, setSelectedPayer] = useState("user");
 
-  const friendExpenses = billAmount - myExpenses;
+  const friendExpenses = bill - userExpenses;
+
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    if (!bill || !userExpenses) return;
+
+    const balanceDifference =
+      selectedPayer === "user" ? friendExpenses : -userExpenses;
+
+    onBalanceDifference(balanceDifference);
+  }
 
   return (
-    <form className="form-split-bill">
+    <form className="form-split-bill" onSubmit={handleSubmit}>
       <h2>{`Split a bill with  ${selectedFriend.name}`}</h2>
       <label>💰 Bill Value</label>
       <input
         type="text"
-        value={billAmount}
-        onChange={(e) => setBillAmount(Number(e.target.value))}
+        value={bill}
+        onChange={(e) => setBill(Number(e.target.value))}
       />
       <label>💰 Your expense</label>
       <input
         type="text"
-        value={myExpenses}
+        value={userExpenses}
         onChange={(e) =>
-          setMyExpenses(
-            Number(e.target.value) > billAmount
-              ? myExpenses
+          setUserExpenses(
+            Number(e.target.value) > bill
+              ? userExpenses
               : Number(e.target.value)
           )
         }
