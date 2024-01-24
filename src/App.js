@@ -23,13 +23,23 @@ const initialFriends = [
 
 export default function App() {
   const [friends, setFriends] = useState(initialFriends);
+  const [openAddFriend, setOpenAddFriend] = useState(false);
+
+  function onToggle() {
+    setOpenAddFriend(!openAddFriend);
+  }
 
   return (
     <div className="app">
       <div className="sidebar">
         <FriendsList data={initialFriends} />
-        <FormAddFriend friends={friends} onsetFriends={setFriends} />
-        <Button>Add Friend</Button>
+
+        {openAddFriend && (
+          <FormAddFriend friends={friends} onsetFriends={setFriends} />
+        )}
+        <Button onClick={onToggle}>
+          {openAddFriend ? "Close" : "Add Friend"}
+        </Button>
       </div>
       <div>
         <FormSplitBill friends={friends} />
@@ -92,8 +102,12 @@ function FormAddFriend({ friends, onsetFriends }) {
   );
 }
 
-function Button({ children }) {
-  return <button className="button">{children}</button>;
+function Button({ onClick, children }) {
+  return (
+    <button className="button" onClick={onClick}>
+      {children}
+    </button>
+  );
 }
 
 function FormSplitBill({ friends }) {
